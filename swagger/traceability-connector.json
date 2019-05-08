@@ -1,0 +1,922 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "0.14.0-SNAPSHOT",
+        "title": "<API-C Traceability Connector> API v1.0",
+        "description": ""
+    },
+    "basePath": "/api/v1",
+    "schemes": ["http", "https"],
+    "consumes": ["application/json", "application/xml"],
+    "produces": ["application/json", "application/xml"],
+    "paths": {
+        "/traceability/transactionDetails/{transaction-id}": {
+            "parameters": [{
+                "name": "transaction-id",
+                "in": "path",
+                "required": true,
+                "type": "string"
+            }],
+            "get": {
+                "operationId": "GET_traceability-transactions-transaction-id",
+                "summary": "Specific transaction by transaction-id",
+                "tags": ["Traceability"],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/transactionDetails"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request, failed to validate request parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    }
+                }
+            }
+        },
+        "/traceability/transactions": {
+            "get": {
+                "operationId": "GET_traceability-transactions",
+                "summary": "Transaction list",
+                "tags": ["Traceability"],
+                "parameters": [{
+                    "name": "from",
+                    "in": "query",
+                    "description": "Date-time specified in epoch time (milliseconds). Defaults to 0\n",
+                    "required": false,
+                    "type": "number"
+                }, {
+                    "name": "to",
+                    "in": "query",
+                    "description": "Date-time specified in epoch time (milliseconds). Defaults to current\n",
+                    "required": false,
+                    "type": "number"
+                }, {
+                    "name": "pageSize",
+                    "in": "query",
+                    "description": "The number of entities allowed in a page",
+                    "required": false,
+                    "type": "integer",
+                    "default": 20
+                }, {
+                    "name": "page",
+                    "in": "query",
+                    "description": "The offset starting page number in the result set to start returning results from, starts at 1",
+                    "required": false,
+                    "type": "integer",
+                    "default": 1
+                }, {
+                    "name": "query",
+                    "in": "query",
+                    "description": "Query string for filtering. Expressed in FIQL/RSQL language",
+                    "required": false,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "List of all transactions in the selected timeframe",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/transactionSummaryEvent"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request, failed to validate request parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    }
+                }
+            }
+        },
+        "/traceability/summary": {
+            "get": {
+                "operationId": "GET_traceability-summary",
+                "summary": "Computes summary of api calls",
+                "tags": ["Traceability"],
+                "parameters": [{
+                    "name": "groupBy",
+                    "in": "query",
+                    "description": "Grouping parameters",
+                    "required": false,
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": ["proxyId", "proxyRevision", "method", "virtualHost", "uri", "applicationId", "teamId"]
+                    }
+                }, {
+                    "name": "query",
+                    "in": "query",
+                    "description": "Query string for filtering. Expressed in FIQL/RSQL language",
+                    "required": false,
+                    "type": "string"
+                }, {
+                    "name": "from",
+                    "in": "query",
+                    "description": "Date-time specified in epoch time (milliseconds). Defaults to 0\n",
+                    "required": false,
+                    "type": "number"
+                }, {
+                    "name": "to",
+                    "in": "query",
+                    "description": "Date-time specified in epoch time (milliseconds). Defaults to current\n",
+                    "required": false,
+                    "type": "number"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Summary of transactions",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/summary"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request, failed to validate request parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    }
+                }
+            }
+        },
+        "/traceability/chart": {
+            "get": {
+                "operationId": "GET_traceability-chart",
+                "summary": "Histogram data for transaction counts",
+                "tags": ["Traceability"],
+                "parameters": [{
+                    "name": "interval",
+                    "in": "query",
+                    "description": "Interval parameter",
+                    "required": true,
+                    "type": "string",
+                    "pattern": "^[1-9]\\d*[smhd]$"
+                }, {
+                    "name": "from",
+                    "in": "query",
+                    "description": "Date-time specified in epoch time (milliseconds). Defaults to 0\n",
+                    "required": false,
+                    "type": "number"
+                }, {
+                    "name": "to",
+                    "in": "query",
+                    "description": "Date-time specified in epoch time (milliseconds). Defaults to current\n",
+                    "required": false,
+                    "type": "number"
+                }, {
+                    "name": "query",
+                    "in": "query",
+                    "description": "Query string for filtering. Expressed in FIQL/RSQL language",
+                    "required": false,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Histogram data for transaction counts",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/chartDataPoint"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request, failed to validate request parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    }
+                }
+            }
+        },
+        "/traceability/serviceEvents": {
+            "get": {
+                "operationId": "GET_traceability-serviceEvents",
+                "summary": "Service Event list",
+                "tags": ["Traceability"],
+                "parameters": [{
+                    "name": "from",
+                    "in": "query",
+                    "description": "Date-time specified in epoch time (milliseconds). Defaults to 0\n",
+                    "required": false,
+                    "type": "number"
+                }, {
+                    "name": "to",
+                    "in": "query",
+                    "description": "Date-time specified in epoch time (milliseconds). Defaults to current\n",
+                    "required": false,
+                    "type": "number"
+                }, {
+                    "name": "pageSize",
+                    "in": "query",
+                    "description": "The number of entities allowed in a page",
+                    "required": false,
+                    "type": "integer",
+                    "default": 20
+                }, {
+                    "name": "page",
+                    "in": "query",
+                    "description": "The offset starting page number in the result set to start returning results from, starts at 1",
+                    "required": false,
+                    "type": "integer",
+                    "default": 1
+                }, {
+                    "name": "query",
+                    "in": "query",
+                    "description": "Query string for filtering. Expressed in FIQL/RSQL language",
+                    "required": false,
+                    "type": "string"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "List of all service events in the selected timeframe",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/serviceEvent"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request, failed to validate request parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    }
+                }
+            }
+        },
+        "/traceability/chart/throughput": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Histogram data for throughput for selected proxy-id",
+                        "schema": {
+                            "$ref": "#/definitions/chartDataPoint"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request, failed to validate request parameters"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    }
+                },
+                "description": "Retrieve throughput in transactions per second (TPS) for an API proxy specified by proxy-id parameter sent in the query",
+                "summary": "Throughput in transactions per second for a proxy",
+                "operationId": "GET_traceability-chart-throughput",
+                "tags": ["Traceability"],
+                "parameters": [{
+                    "in": "query",
+                    "name": "interval",
+                    "type": "string",
+                    "description": "Interval parameter",
+                    "pattern": "^[1-9]\\\\d*[smhd]$",
+                    "required": true
+                }, {
+                    "in": "query",
+                    "name": "from",
+                    "type": "number",
+                    "description": "Date-time specified in epoch time (milliseconds). Defaults to 0"
+                }, {
+                    "in": "query",
+                    "name": "to",
+                    "type": "number",
+                    "description": "Date-time specified in epoch time (milliseconds). Defaults to current"
+                }, {
+                    "in": "query",
+                    "name": "query",
+                    "type": "string",
+                    "description": "Query string for filtering. Expressed in FIQL/RSQL language"
+                }]
+            }
+        }
+    },
+    "parameters": {
+        "trait:pageSizeParam:pageSize": {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The number of entities allowed in a page",
+            "required": false,
+            "type": "integer",
+            "default": 20
+        },
+        "trait:fromDateParam:from": {
+            "name": "from",
+            "in": "query",
+            "description": "Date-time specified in epoch time (milliseconds). Defaults to 0\n",
+            "required": false,
+            "type": "number"
+        },
+        "trait:toDateParam:to": {
+            "name": "to",
+            "in": "query",
+            "description": "Date-time specified in epoch time (milliseconds). Defaults to current\n",
+            "required": false,
+            "type": "number"
+        },
+        "trait:rsqlQuery:query": {
+            "name": "query",
+            "in": "query",
+            "description": "Query string for filtering. Expressed in FIQL/RSQL language",
+            "required": false,
+            "type": "string"
+        },
+        "trait:intervalParam:interval": {
+            "name": "interval",
+            "in": "query",
+            "description": "Interval parameter",
+            "required": true,
+            "type": "string",
+            "pattern": "^[1-9]\\d*[smhd]$"
+        },
+        "trait:groupingParam:groupBy": {
+            "name": "groupBy",
+            "in": "query",
+            "description": "Grouping parameters",
+            "required": false,
+            "type": "array",
+            "items": {
+                "type": "string",
+                "enum": ["proxyId", "proxyRevision", "method", "virtualHost", "uri", "applicationId", "teamId"]
+            }
+        },
+        "trait:pageNumberParam:page": {
+            "name": "page",
+            "in": "query",
+            "description": "The offset starting page number in the result set to start returning results from, starts at 1",
+            "required": false,
+            "type": "integer",
+            "default": 1
+        }
+    },
+    "definitions": {
+        "serviceEvent": {
+            "title": "Service Event",
+            "type": "object",
+            "description": "Descriptor of a Service Event",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": ["serviceEvent"]
+                },
+                "path": {
+                    "type": "string",
+                    "description": "Path of call"
+                },
+                "method": {
+                    "type": "string",
+                    "description": "HTTP Method"
+                },
+                "latency": {
+                    "type": "string",
+                    "description": "Latency of call"
+                },
+                "destination": {
+                    "type": "string",
+                    "description": "Destination of call"
+                },
+                "source": {
+                    "type": "string",
+                    "description": "Source of call"
+                },
+                "responseCode": {
+                    "type": "integer",
+                    "description": "HTTP response code"
+                },
+                "timestamp": {
+                    "type": "number",
+                    "description": "Unix timestamp of call"
+                }
+            },
+            "required": ["type", "path", "method", "latency", "destination", "source", "responseCode", "timestamp"]
+        },
+        "summary": {
+            "title": "Summary",
+            "type": "object",
+            "properties": {
+                "failureCount": {
+                    "type": "number",
+                    "format": "long",
+                    "description": "Total count of transactions that resulted in a 4xx status"
+                },
+                "successCount": {
+                    "type": "number",
+                    "format": "long",
+                    "description": "Total count of transactions that resulted in a 2xx status"
+                },
+                "exceptionCount": {
+                    "type": "number",
+                    "format": "long",
+                    "description": "Total count of transactions that resulted in a 5xx status"
+                },
+                "totalCount": {
+                    "type": "number",
+                    "format": "long",
+                    "description": "Total count of transactions"
+                },
+                "avgDurationMs": {
+                    "type": "number",
+                    "format": "long",
+                    "description": "Average duration of transactions"
+                },
+                "proxyId": {
+                    "type": "string",
+                    "description": "Proxy identifier"
+                },
+                "proxyRevision": {
+                    "type": "integer",
+                    "description": "Proxy revision"
+                },
+                "proxyName": {
+                    "type": "string",
+                    "description": "Proxy name"
+                },
+                "applicationId": {
+                    "type": "string",
+                    "description": "Application identifier"
+                },
+                "applicationName": {
+                    "type": "string",
+                    "description": "Application name"
+                },
+                "teamId": {
+                    "type": "string",
+                    "description": "Team identifier"
+                },
+                "teamName": {
+                    "type": "string",
+                    "description": "Team name"
+                },
+                "method": {
+                    "type": "string",
+                    "description": "Method called"
+                },
+                "virtualHost": {
+                    "type": "string",
+                    "description": "Virtual host"
+                },
+                "uri": {
+                    "type": "string",
+                    "description": "Uri of the call"
+                }
+            },
+            "required": ["failureCount", "successCount", "exceptionCount", "avgDurationMs", "totalCount"]
+        },
+        "transactionSummaryDetails": {
+            "title": "TransactionSummaryDetails",
+            "description": "Attributes of a transactionSummary event",
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "enum": ["Success", "Failure", "Exception", "Unknown"]
+                },
+                "statusDetail": {
+                    "type": "string",
+                    "description": "Protocol specific response status"
+                },
+                "duration": {
+                    "type": "integer",
+                    "description": "Duration in milliseconds"
+                },
+                "proxy": {
+                    "$ref": "#/definitions/proxyDescriptor"
+                },
+                "runtime": {
+                    "$ref": "#/definitions/runtimeDescriptor"
+                },
+                "product": {
+                    "$ref": "#/definitions/productDescriptor"
+                },
+                "team": {
+                    "$ref": "#/definitions/teamDescriptor"
+                },
+                "application": {
+                    "$ref": "#/definitions/applicationDescriptor"
+                },
+                "entryPoint": {
+                    "$ref": "#/definitions/entryPoint"
+                }
+            },
+            "required": ["status", "statusDetail", "duration", "proxy", "runtime", "entryPoint"]
+        },
+        "transactionLegEvent": {
+            "title": "TransactionLegEvent",
+            "description": "Schema of a standalone Transaction Event",
+            "allOf": [{
+                "$ref": "#/definitions/common"
+            }, {
+                "properties": {
+                    "transactionEvent": {
+                        "$ref": "#/definitions/transactionEvent"
+                    }
+                },
+                "required": ["transactionEvent"]
+            }],
+            "type": "object"
+        },
+        "protocol": {
+            "title": "Protocol",
+            "type": "object",
+            "description": "Descriptor of the HTTP protocol element",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": ["http"]
+                },
+                "uri": {
+                    "type": "string",
+                    "description": "HTTP URI"
+                },
+                "args": {
+                    "type": "string",
+                    "description": "Request query parameters as serialized json map"
+                },
+                "method": {
+                    "type": "string",
+                    "description": "HTTP Method"
+                },
+                "status": {
+                    "type": "integer",
+                    "description": "HTTP Status code"
+                },
+                "statusText": {
+                    "type": "string",
+                    "description": "HTTP Status text"
+                },
+                "userAgent": {
+                    "type": "string",
+                    "description": "User Agent"
+                },
+                "host": {
+                    "type": "string",
+                    "description": "HTTP Host request header"
+                },
+                "version": {
+                    "type": "string",
+                    "description": "HTTP Version"
+                },
+                "bytesReceived": {
+                    "type": "integer",
+                    "description": "Total bytes received"
+                },
+                "bytesSent": {
+                    "type": "integer",
+                    "description": "Total bytes sent"
+                },
+                "remoteName": {
+                    "type": "string",
+                    "description": "Remote host name"
+                },
+                "remoteAddr": {
+                    "type": "string",
+                    "description": "Remote host address"
+                },
+                "localAddr": {
+                    "type": "string",
+                    "description": "Local address"
+                },
+                "remotePort": {
+                    "type": "string",
+                    "description": "Remote port"
+                },
+                "localPort": {
+                    "type": "string",
+                    "description": "Local port"
+                },
+                "sslServerName": {
+                    "type": "string",
+                    "description": "Requested server name via SNI"
+                },
+                "sslSubject": {
+                    "type": "string",
+                    "description": "Client SSL Subject DN"
+                },
+                "sslProtocol": {
+                    "type": "string",
+                    "description": "Negotiated SSL Protocol."
+                },
+                "authSubjectId": {
+                    "type": "string",
+                    "description": "Id of the authenticated subject."
+                },
+                "requestHeaders": {
+                    "type": "string",
+                    "description": "Request headers in serialized json or text format"
+                },
+                "indexedRequestHeaders": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Indexed received headers"
+                },
+                "responseHeaders": {
+                    "type": "string",
+                    "description": "Response headers in serialized json or text format"
+                },
+                "indexedResponseHeaders": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Indexed sent headers"
+                },
+                "requestPayload": {
+                    "type": "string",
+                    "description": "URN of the request received payload e.g. urn:objectstore:traffic:6e8bc430-9c3a-11d9-9669-0800200c9a66"
+                },
+                "responsePayload": {
+                    "type": "string",
+                    "description": "URN of the request sent payload e.g. urn:objectstore:traffic:6e8bc430-9c3a-11d9-9669-0800200c9a66"
+                },
+                "wafStatus": {
+                    "type": "integer",
+                    "description": "Waf status "
+                },
+                "timing": {
+                    "type": "object",
+                    "properties": {
+                        "dnsLookup": {
+                            "type": "integer",
+                            "description": "Time to dns lookup"
+                        },
+                        "tcpConnection": {
+                            "type": "integer",
+                            "description": "Time to tcp connection establishment"
+                        },
+                        "sslHandshake": {
+                            "type": "integer",
+                            "description": "Time to ssl handshake completion"
+                        },
+                        "firstByte": {
+                            "type": "integer",
+                            "description": "Time to first byte received"
+                        },
+                        "end": {
+                            "type": "integer",
+                            "description": "Time to completion"
+                        }
+                    },
+                    "description": "Detailed timing of http/https requests",
+                    "required": ["tcpConnection", "firstByte"]
+                }
+            },
+            "required": ["type", "uri", "status", "method", "host", "bytesSent", "bytesReceived"]
+        },
+        "productDescriptor": {
+            "title": "Product",
+            "type": "object",
+            "description": "Descriptor of the product",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Product id"
+                },
+                "version": {
+                    "type": "string",
+                    "description": "Product version"
+                }
+            },
+            "required": ["id"]
+        },
+        "applicationDescriptor": {
+            "title": "Applications",
+            "type": "object",
+            "description": "Descriptor of the application that triggered the action",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Application id"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Application name"
+                }
+            },
+            "required": ["id"]
+        },
+        "transactionSummaryEvent": {
+            "title": "TransactionSummaryEvent",
+            "description": "Schema of a Transaction Summary",
+            "allOf": [{
+                "$ref": "#/definitions/common"
+            }, {
+                "properties": {
+                    "transactionSummary": {
+                        "$ref": "#/definitions/transactionSummaryDetails"
+                    }
+                },
+                "required": ["transactionSummary"]
+            }],
+            "type": "object"
+        },
+        "common": {
+            "title": "Common",
+            "type": "object",
+            "description": "Common attributes of a API Central event",
+            "properties": {
+                "version": {
+                    "type": "string",
+                    "title": "Event version"
+                },
+                "timestamp": {
+                    "type": "number",
+                    "title": "Unix timestamp of the event"
+                },
+                "transactionId": {
+                    "type": "string",
+                    "title": "Unique business transaction id. Generated by APIC.",
+                    "description": "transaction ID expected as URL Encoded parameter"
+                },
+                "environment": {
+                    "type": "string",
+                    "title": "Name of the environment"
+                },
+                "apicDeployment": {
+                    "type": "string",
+                    "title": "Name of the APIC deployment environment"
+                },
+                "environmentId": {
+                    "type": "string",
+                    "title": "Unique ID denoting the origin environment"
+                },
+                "tenantId": {
+                    "type": "string",
+                    "title": "Tenant identifier"
+                },
+                "trcbltPartitionId": {
+                    "type": "string",
+                    "title": "Axway condor partition id. Must match an org id."
+                },
+                "type": {
+                    "type": "string",
+                    "title": "Type of event"
+                }
+            },
+            "required": ["version", "timestamp", "apicDeployment", "environmentId", "type"]
+        },
+        "transactionEvent": {
+            "title": "TransactionEvent",
+            "type": "object",
+            "description": "Attributes of a transaction event",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "parentId": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "destination": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "integer"
+                },
+                "direction": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "protocol": {
+                    "$ref": "#/definitions/protocol"
+                }
+            }
+        },
+        "chartDataPoint": {
+            "title": "ChartDataPoint",
+            "required": ["time"],
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "number",
+                    "format": "long",
+                    "description": "Data point timestamp"
+                },
+                "total": {
+                    "type": "number",
+                    "format": "long",
+                    "description": "Value based on chart type"
+                }
+            }
+        },
+        "transactionDetails": {
+            "title": "TransactionDetails",
+            "type": "object",
+            "properties": {
+                "transactionLegEvent": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/transactionLegEvent"
+                    }
+                },
+                "transactionSummaryEvent": {
+                    "$ref": "#/definitions/transactionSummaryEvent"
+                }
+            }
+        },
+        "teamDescriptor": {
+            "title": "Team",
+            "type": "object",
+            "description": "Descriptor of a team",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Team id"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Team name"
+                }
+            },
+            "required": ["id"]
+        },
+        "proxyDescriptor": {
+            "title": "Proxy",
+            "type": "object",
+            "description": "Descriptor of the proxy called",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Proxy id"
+                },
+                "revision": {
+                    "type": "string",
+                    "description": "Proxy revision"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Proxy name"
+                }
+            },
+            "required": ["id", "revision"]
+        },
+        "entryPoint": {
+            "title": "EntryPoint",
+            "type": "object",
+            "description": "Descriptor of the HTTP entry point",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": ["http"]
+                },
+                "method": {
+                    "type": "string",
+                    "description": "HTTP Method"
+                },
+                "path": {
+                    "type": "string",
+                    "description": "HTTP Path"
+                }
+            },
+            "required": ["method", "path"]
+        },
+        "runtimeDescriptor": {
+            "title": "Runtime",
+            "type": "object",
+            "description": "Descriptor of the runtime environment",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Runtime id"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Runtime name"
+                }
+            },
+            "required": ["id"]
+        }
+    }
+}

@@ -1,0 +1,510 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "0.13.0",
+        "title": "Policy Library",
+        "description": "The policy library is a component in API Central SaaS that allows the creation of policies.\nThe main elements of the policy library are:\n- Policy: created from the schema definiton\n- Relationships: tie a policy to a compatible APIC object (ex: services, runtimegroups...)",
+        "contact": {
+            "name": "Xenon Team"
+        }
+    },
+    "schemes": ["http"],
+    "consumes": ["application/json"],
+    "produces": ["application/json"],
+    "basePath": "/api/v1",
+    "securityDefinitions": {},
+    "paths": {
+        "/policies/{policyId}/contexts": {
+            "parameters": [{
+                "name": "policyId",
+                "in": "path",
+                "type": "string",
+                "required": true
+            }],
+            "post": {
+                "parameters": [{
+                    "name": "body",
+                    "in": "body",
+                    "schema": {
+                        "$ref": "#/definitions/Context"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Add context to a policy"
+                    },
+                    "401": {
+                        "description": ""
+                    },
+                    "403": {
+                        "description": ""
+                    },
+                    "404": {
+                        "description": ""
+                    }
+                },
+                "description": "Adds a new context to a policy",
+                "operationId": "addPolicyInstanceContext"
+            },
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Context"
+                        }
+                    }
+                },
+                "parameters": [],
+                "description": "Gets all contexts for a policy",
+                "operationId": "getPolicyInstanceContexts"
+            }
+        },
+        "/environments/{environmentId}/services/{serviceId}/policies": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/PolicyInstance"
+                            }
+                        }
+                    }
+                },
+                "description": "Get all policies that apply to a service",
+                "operationId": "getPoliciesOnService"
+            },
+            "parameters": [{
+                "name": "environmentId",
+                "in": "path",
+                "type": "string",
+                "required": true
+            }, {
+                "name": "serviceId",
+                "in": "path",
+                "type": "string",
+                "required": true
+            }]
+        },
+        "/environments/{environmentId}/proxies/{proxyId}/policies": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/PolicyInstance"
+                            }
+                        }
+                    }
+                },
+                "description": "Gets all policies applied to a proxy in an environment",
+                "operationId": "getPoliciesOnProxy"
+            },
+            "parameters": [{
+                "$ref": "#/parameters/environmentId"
+            }, {
+                "$ref": "#/parameters/proxyId"
+            }]
+        },
+        "/environments/{environmentId}/proxies/{proxyId}/revision/{revisionId}/policies": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/PolicyInstance"
+                        }
+                    }
+                },
+                "description": "Gets all policies that apply to a proxy revision in an environment.",
+                "operationId": "getPoliciesOnProxyRevision"
+            },
+            "parameters": [{
+                "$ref": "#/parameters/environmentId"
+            }, {
+                "$ref": "#/parameters/proxyId"
+            }, {
+                "$ref": "#/parameters/revisionId"
+            }]
+        },
+        "/policies": {
+            "get": {
+                "operationId": "findPolicyInstances",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/PolicyInstance"
+                            }
+                        }
+                    }
+                },
+                "description": "List PolicyInstance"
+            },
+            "post": {
+                "operationId": "createPolicyInstance",
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "schema": {
+                        "$ref": "#/definitions/PolicyInstance"
+                    }
+                }],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/PolicyInstance"
+                        }
+                    }
+                },
+                "description": "Create PolicyInstance"
+            }
+        },
+        "/policies/{policyId}": {
+            "parameters": [{
+                "$ref": "#/parameters/policyId"
+            }],
+            "get": {
+                "operationId": "getPolicyInstance",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/PolicyInstance"
+                        }
+                    }
+                },
+                "description": "Get PolicyInstance"
+            },
+            "patch": {
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "schema": {
+                        "$ref": "#/definitions/PolicyInstance"
+                    }
+                }],
+                "operationId": "patchPolicyInstance",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/PolicyInstance"
+                        }
+                    }
+                },
+                "description": "Get PolicyInstance"
+            }
+        },
+        "/policies/{policyId}/contexts/{contextId}/state": {
+            "put": {
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "type": "object",
+                            "properties": {}
+                        }
+                    }
+                },
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "schema": {
+                        "type": "string"
+                    }
+                }],
+                "description": "Updates the state of a context (not implemented)",
+                "operationId": "updatePolicyInstanceContextState"
+            },
+            "parameters": [{
+                "name": "policyId",
+                "in": "path",
+                "type": "string",
+                "required": true
+            }, {
+                "name": "contextId",
+                "in": "path",
+                "type": "string",
+                "required": true
+            }]
+        },
+        "/environments/{environmentId}/policies": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "type": "object",
+                            "properties": {}
+                        }
+                    }
+                },
+                "operationId": "getPoliciesOnAllServiceMesh",
+                "description": "Gets all policies that apply to all services in a service mesh."
+            },
+            "parameters": [{
+                "$ref": "#/parameters/environmentId"
+            }]
+        }
+    },
+    "parameters": {
+        "serviceId": {
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "name": "serviceId",
+            "maxLength": 32,
+            "minLength": 32,
+            "description": "Id of a service"
+        },
+        "environmentId": {
+            "name": "environmentId",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "maxLength": 32,
+            "minLength": 32,
+            "description": "Id of an environment"
+        },
+        "policyId": {
+            "name": "policyId",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "maxLength": 32,
+            "minLength": 32,
+            "description": "Id of a policy"
+        },
+        "contextId": {
+            "name": "contextId",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "maxLength": 32,
+            "minLength": 32,
+            "description": "Id of an environment"
+        },
+        "proxyId": {
+            "name": "proxyId",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "maxLength": 32,
+            "minLength": 32,
+            "description": "Id of a proxy"
+        },
+        "revisionId": {
+            "name": "revisionId",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "minimum": 1,
+            "description": "Revision of a proxy"
+        }
+    },
+    "definitions": {
+        "Context": {
+            "type": "object",
+            "title": "Context",
+            "properties": {
+                "id": {
+                    "$ref": "#/definitions/ObjectId"
+                },
+                "policyId": {
+                    "$ref": "#/definitions/ObjectId"
+                },
+                "environmentId": {
+                    "$ref": "#/definitions/ObjectId"
+                },
+                "state": {
+                    "$ref": "#/definitions/State"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/AuditMetadata"
+                },
+                "info": {
+                    "$ref": "#/definitions/ContextInfo"
+                }
+            },
+            "required": ["environmentId"],
+            "description": "Describes a context in which a policy is applied."
+        },
+        "PolicyInstance": {
+            "type": "object",
+            "title": "PolicyInstance",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "the type of the policy ex : Egress (created by /PolicyDefinition api)"
+                },
+                "data": {
+                    "type": "object"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/AuditMetadata"
+                },
+                "version": {
+                    "type": "string",
+                    "description": "policy version (created by the PolicyDefinition endpoint)"
+                },
+                "contexts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Context"
+                    }
+                },
+                "state": {
+                    "$ref": "#/definitions/State"
+                }
+            },
+            "required": ["type", "data", "version"]
+        },
+        "AuditMetadata": {
+            "type": "object",
+            "readOnly": true,
+            "properties": {
+                "createUserId": {
+                    "type": "string",
+                    "minLength": 32,
+                    "maxLength": 32,
+                    "description": "Identifier of the user that created the entity."
+                },
+                "createTimestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The creation time."
+                },
+                "modifyTimestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The last modification time."
+                },
+                "modifyUserId": {
+                    "type": "string",
+                    "minLength": 32,
+                    "maxLength": 32,
+                    "description": "Identifier of the user that last modified the entity."
+                }
+            }
+        },
+        "ObjectId": {
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 32
+        },
+        "ContextInfo": {
+            "type": "object",
+            "discriminator": "type",
+            "properties": {
+                "type": {
+                    "type": "string"
+                }
+            },
+            "required": ["type"],
+            "description": "Base object. Objects extending this object can be posted wherever ContextInfo is accepted."
+        },
+        "ProxyContext": {
+            "allOf": [{
+                "$ref": "#/definitions/ContextInfo"
+            }, {
+                "type": "object",
+                "properties": {
+                    "proxyId": {
+                        "$ref": "#/definitions/ObjectId"
+                    },
+                    "proxyRevision": {
+                        "type": "integer"
+                    },
+                    "runtimeGroupId": {
+                        "$ref": "#/definitions/ObjectId"
+                    }
+                },
+                "required": ["proxyId"]
+            }]
+        },
+        "ServiceToServiceContext": {
+            "allOf": [{
+                "$ref": "#/definitions/ContextInfo"
+            }, {
+                "type": "object",
+                "properties": {
+                    "sourceId": {
+                        "$ref": "#/definitions/ObjectId"
+                    },
+                    "destinationId": {
+                        "$ref": "#/definitions/ObjectId"
+                    }
+                },
+                "required": ["sourceId", "destinationId"]
+            }],
+            "description": "Applies a policy to traffic between two meshes."
+        },
+        "MeshContext": {
+            "allOf": [{
+                "$ref": "#/definitions/ContextInfo"
+            }],
+            "description": "Applies a policy to all services in a mesh."
+        },
+        "ServiceEgressContext": {
+            "allOf": [{
+                "$ref": "#/definitions/ContextInfo"
+            }, {
+                "type": "object",
+                "properties": {
+                    "sourceId": {
+                        "$ref": "#/definitions/ObjectId"
+                    }
+                }
+            }],
+            "description": "Applies a policy to traffic exiting a service in a mesh."
+        },
+        "ServiceIngressContext": {
+            "allOf": [{
+                "$ref": "#/definitions/ContextInfo"
+            }, {
+                "type": "object",
+                "properties": {
+                    "destinationId": {
+                        "$ref": "#/definitions/ObjectId"
+                    }
+                }
+            }],
+            "description": "Applies a policy to traffic entering a service in a mesh."
+        },
+        "State": {
+            "type": "string",
+            "enum": ["ACTIVE", "INACTIVE"],
+            "description": "Describes a Policy or ContextInfo possible states."
+        }
+    },
+    "tags": [{
+        "name": "Policies"
+    }, {
+        "name": "Schemas"
+    }],
+    "responses": {
+        "policyInstanceArray": {
+            "description": "",
+            "schema": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/PolicyInstance"
+                }
+            }
+        }
+    }
+}

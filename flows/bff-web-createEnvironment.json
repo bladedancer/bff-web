@@ -1,0 +1,756 @@
+{
+	"schemaVersion": "4",
+	"info": {
+		"name": "bff-web - post /environments/"
+	},
+	"parameter": {
+		"properties": {
+			"params": {
+				"type": "object",
+				"description": "The parameters from the endpoint."
+			},
+			"request": {
+				"type": "object",
+				"description": "The HTTP request."
+			},
+			"config": {
+				"type": "object",
+				"description": "The service's configuration"
+			},
+			"env": {
+				"type": "object",
+				"description": "The host OS environment"
+			}
+		},
+		"additionalProperties": false,
+		"required": [
+			"params",
+			"request",
+			"config",
+			"env"
+		]
+	},
+	"start": "delay.1",
+	"nodes": {
+		"config-service.1": {
+			"type": "nodehandler://@axway/api-builder-plugin-fn-swagger/config-service",
+			"name": "Step-1: Create Environment",
+			"method": "createEnvironment",
+			"parameters": [
+				{
+					"name": "X-Axway-Instance-Id",
+					"type": "jsonpath",
+					"value": "$.request.headers[\"x-axway-instance-Id\"]",
+					"metaName": "X-Axway-Instance-Id",
+					"metaDescription": "The logical instance id"
+				},
+				{
+					"name": "X-Axway-Team-Id",
+					"type": "jsonpath",
+					"value": "$.request.headers[\"x-axway-team-id\"]",
+					"metaName": "X-Axway-Team-Id",
+					"metaDescription": "The currently selected team if the user is using the system within a team context"
+				},
+				{
+					"name": "X-Axway-Tenant-Id",
+					"type": "jsonpath",
+					"value": "$.request.headers[\"x-axway-tenant-id\"]",
+					"metaName": "X-Axway-Tenant-Id",
+					"metaDescription": "The tenant id"
+				},
+				{
+					"name": "environment",
+					"type": "jsonpath",
+					"value": "$.data.environment",
+					"metaName": "environment",
+					"metaDescription": "The representation of an Environment to create"
+				}
+			],
+			"outputs": {
+				"201": {
+					"routes": [
+						"setcontext.1"
+					],
+					"context": "$.response",
+					"metaName": "201"
+				},
+				"400": {
+					"routes": [
+						"delay.2"
+					],
+					"context": "$.response",
+					"metaName": "400"
+				},
+				"401": {
+					"routes": [
+						"delay.2"
+					],
+					"context": "$.response",
+					"metaName": "401"
+				},
+				"403": {
+					"routes": [
+						"delay.2"
+					],
+					"context": "$.response",
+					"metaName": "403"
+				},
+				"409": {
+					"routes": [
+						"delay.2"
+					],
+					"context": "$.response",
+					"metaName": "409"
+				},
+				"default": {
+					"routes": [
+						"delay.2"
+					],
+					"context": "$.response",
+					"metaName": "Default"
+				},
+				"error": {
+					"routes": [
+						"delay.2"
+					],
+					"context": "$.error",
+					"metaName": "Error"
+				}
+			},
+			"metaMethod": "createEnvironment",
+			"authorizations": [
+				{
+					"name": "Bearer",
+					"type": "jsonpath",
+					"value": "$.request.headers[\"authorization\"]"
+				}
+			]
+		},
+		"delay.1": {
+			"type": "nodehandler://axway-flow/delay",
+			"name": "Step-1: Start",
+			"method": "delay",
+			"parameters": [
+				{
+					"name": "delay",
+					"type": "number",
+					"value": "0",
+					"metaName": "delay",
+					"metaDescription": "The length of delay, in milliseconds."
+				}
+			],
+			"outputs": {
+				"next": {
+					"context": "$.delayed",
+					"routes": [
+						"doT.1"
+					],
+					"metaName": "Next"
+				}
+			},
+			"metaMethod": "Delay"
+		},
+		"doT.1": {
+			"type": "nodehandler://@axway/api-builder-plugin-fn-dot/doT",
+			"name": "Step-1: Format Environment",
+			"method": "formatObj",
+			"parameters": [
+				{
+					"name": "data",
+					"type": "jsonpath",
+					"value": "$.params.environment",
+					"metaName": "data",
+					"metaDescription": "The data to evaluate the template with. Use $ to access the entire context."
+				},
+				{
+					"name": "template",
+					"type": "string",
+					"value": "\"{\\n\\\"name\\\": {{= JSON.stringify(it.environmentName) }}\\n}\"",
+					"metaName": "template",
+					"metaDescription": "The doT template."
+				}
+			],
+			"outputs": {
+				"next": {
+					"routes": [
+						"config-service.1"
+					],
+					"context": "$.data.environment",
+					"metaName": "Next"
+				},
+				"error": {
+					"routes": [
+						"delay.2"
+					],
+					"context": "$.error",
+					"metaName": "Error"
+				}
+			},
+			"metaMethod": "Format object"
+		},
+		"delay.2": {
+			"type": "nodehandler://axway-flow/delay",
+			"name": "Rollback-1: Start",
+			"method": "delay",
+			"parameters": [
+				{
+					"name": "delay",
+					"type": "number",
+					"value": "0",
+					"metaName": "delay",
+					"metaDescription": "The length of delay, in milliseconds."
+				}
+			],
+			"outputs": {
+				"next": {
+					"context": "$.delayed",
+					"routes": [
+						"config-service.2",
+						"condition.1"
+					],
+					"metaName": "Next"
+				}
+			},
+			"metaMethod": "Delay"
+		},
+		"http.1": {
+			"type": "nodehandler://axway-flow/http",
+			"name": "Success",
+			"method": "setresponse",
+			"parameters": [
+				{
+					"name": "status",
+					"type": "number",
+					"value": "201",
+					"metaName": "status",
+					"metaDescription": "The HTTP status code"
+				},
+				{
+					"name": "body",
+					"type": "jsonpath",
+					"value": "$.data.response",
+					"metaName": "body",
+					"metaDescription": "The response payload"
+				}
+			],
+			"outputs": {
+				"next": {
+					"context": "$.response",
+					"routes": [],
+					"metaName": "Next"
+				}
+			},
+			"metaMethod": "Set HTTP Response"
+		},
+		"delay.3": {
+			"type": "nodehandler://axway-flow/delay",
+			"name": "Step-1: End",
+			"method": "delay",
+			"parameters": [
+				{
+					"name": "delay",
+					"type": "number",
+					"value": "0",
+					"metaName": "delay",
+					"metaDescription": "The length of delay, in milliseconds."
+				}
+			],
+			"outputs": {
+				"next": {
+					"context": "$.delayed",
+					"routes": [
+						"delay.6"
+					],
+					"metaName": "Next"
+				}
+			},
+			"metaMethod": "Delay"
+		},
+		"doT.2": {
+			"type": "nodehandler://@axway/api-builder-plugin-fn-dot/doT",
+			"name": "Format Success Response",
+			"method": "formatObj",
+			"parameters": [
+				{
+					"name": "data",
+					"type": "jsonpath",
+					"value": "$.data",
+					"metaName": "data",
+					"metaDescription": "The data to evaluate the template with. Use $ to access the entire context."
+				},
+				{
+					"name": "template",
+					"type": "string",
+					"value": "\"{\\n\\\"environment\\\": {{= JSON.stringify(it.environment) }},\\n\\\"runtimeGroup\\\": {{= JSON.stringify(it.runtimeGroup) }}\\n}\"",
+					"metaName": "template",
+					"metaDescription": "The doT template."
+				}
+			],
+			"outputs": {
+				"next": {
+					"routes": [
+						"http.1"
+					],
+					"context": "$.data.response",
+					"metaName": "Next"
+				},
+				"error": {
+					"routes": [
+						"delay.8"
+					],
+					"context": "$.error",
+					"metaName": "Error"
+				}
+			},
+			"metaMethod": "Format object"
+		},
+		"config-service.2": {
+			"type": "nodehandler://@axway/api-builder-plugin-fn-swagger/config-service",
+			"name": "Rollback-1: Delete Environment",
+			"method": "deleteEnvironment",
+			"parameters": [
+				{
+					"name": "environmentId",
+					"type": "jsonpath",
+					"value": "$.data.environment.id",
+					"metaName": "environmentId",
+					"metaDescription": "The environment id"
+				},
+				{
+					"name": "X-Axway-Instance-Id",
+					"type": "jsonpath",
+					"value": "$.request.headers[\"x-axway-instance-Id\"]",
+					"metaName": "X-Axway-Instance-Id",
+					"metaDescription": "The logical instance id"
+				},
+				{
+					"name": "X-Axway-Team-Id",
+					"type": "jsonpath",
+					"value": "$.request.headers[\"x-axway-team-id\"]",
+					"metaName": "X-Axway-Team-Id",
+					"metaDescription": "The currently selected team if the user is using the system within a team context"
+				},
+				{
+					"name": "X-Axway-Tenant-Id",
+					"type": "jsonpath",
+					"value": "$.request.headers[\"x-axway-tenant-id\"]",
+					"metaName": "X-Axway-Tenant-Id",
+					"metaDescription": "The tenant id"
+				}
+			],
+			"outputs": {
+				"204": {
+					"routes": [
+						"delay.5"
+					],
+					"context": "$.response",
+					"metaName": "204"
+				},
+				"400": {
+					"routes": [
+						"delay.4"
+					],
+					"context": "$.response",
+					"metaName": "400"
+				},
+				"401": {
+					"routes": [
+						"delay.4"
+					],
+					"context": "$.response",
+					"metaName": "401"
+				},
+				"403": {
+					"routes": [
+						"delay.4"
+					],
+					"context": "$.response",
+					"metaName": "403"
+				},
+				"404": {
+					"routes": [
+						"delay.4"
+					],
+					"context": "$.response",
+					"metaName": "404"
+				},
+				"default": {
+					"routes": [
+						"delay.4"
+					],
+					"context": "$.response",
+					"metaName": "Default"
+				},
+				"error": {
+					"routes": [
+						"delay.4"
+					],
+					"context": "$.error",
+					"metaName": "Error"
+				}
+			},
+			"metaMethod": "deleteEnvironment",
+			"authorizations": [
+				{
+					"name": "Bearer",
+					"type": "jsonpath",
+					"value": "$.request.headers[\"authorization\"]"
+				}
+			]
+		},
+		"delay.4": {
+			"type": "nodehandler://axway-flow/delay",
+			"name": "Log Rollback Failure",
+			"method": "delay",
+			"parameters": [
+				{
+					"name": "delay",
+					"type": "number",
+					"value": "0",
+					"metaName": "delay",
+					"metaDescription": "The length of delay, in milliseconds."
+				}
+			],
+			"outputs": {
+				"next": {
+					"context": "$.delayed",
+					"routes": [
+						"delay.5"
+					],
+					"metaName": "Next"
+				}
+			},
+			"metaMethod": "Delay"
+		},
+		"http.2": {
+			"type": "nodehandler://axway-flow/http",
+			"name": "Rollback Done (todo)",
+			"method": "setresponse",
+			"parameters": [
+				{
+					"name": "status",
+					"type": "number",
+					"value": "500",
+					"metaName": "status",
+					"metaDescription": "The HTTP status code"
+				}
+			],
+			"outputs": {
+				"next": {
+					"context": "$.response",
+					"routes": [],
+					"metaName": "Next"
+				}
+			},
+			"metaMethod": "Set HTTP Response"
+		},
+		"delay.5": {
+			"type": "nodehandler://axway-flow/delay",
+			"name": "Rollback-1: End",
+			"method": "delay",
+			"parameters": [
+				{
+					"name": "delay",
+					"type": "number",
+					"value": "0",
+					"metaName": "delay",
+					"metaDescription": "The length of delay, in milliseconds."
+				}
+			],
+			"outputs": {
+				"next": {
+					"context": "$.delayed",
+					"routes": [
+						"http.2"
+					],
+					"metaName": "Next"
+				}
+			},
+			"metaMethod": "Delay"
+		},
+		"condition.1": {
+			"type": "nodehandler://axway-flow/condition",
+			"name": "Rollback-1: Has env id?",
+			"method": "exists",
+			"parameters": [
+				{
+					"name": "source",
+					"type": "jsonpath",
+					"value": "$.data.environment.id",
+					"metaName": "source",
+					"metaDescription": "The input to test."
+				}
+			],
+			"outputs": {
+				"true": {
+					"routes": [
+						"config-service.2"
+					],
+					"context": "$.exists",
+					"metaName": "True"
+				},
+				"false": {
+					"routes": [
+						"delay.5"
+					],
+					"context": "$.exists",
+					"metaName": "False"
+				}
+			},
+			"metaMethod": "Exists"
+		},
+		"delay.6": {
+			"type": "nodehandler://axway-flow/delay",
+			"name": "Step-2: Start",
+			"method": "delay",
+			"parameters": [
+				{
+					"name": "delay",
+					"type": "number",
+					"value": "0",
+					"metaName": "delay",
+					"metaDescription": "The length of delay, in milliseconds."
+				}
+			],
+			"outputs": {
+				"next": {
+					"context": "$.delayed",
+					"routes": [
+						"doT.3"
+					],
+					"metaName": "Next"
+				}
+			},
+			"metaMethod": "Delay"
+		},
+		"config-service.3": {
+			"type": "nodehandler://@axway/api-builder-plugin-fn-swagger/config-service",
+			"name": "Step-2: Create RuntimeGroup",
+			"method": "createRuntimeGroup",
+			"parameters": [
+				{
+					"name": "X-Axway-Instance-Id",
+					"type": "jsonpath",
+					"value": "$.request.headers[\"x-axway-instance-Id\"]",
+					"metaName": "X-Axway-Instance-Id",
+					"metaDescription": "The logical instance id"
+				},
+				{
+					"name": "X-Axway-Team-Id",
+					"type": "jsonpath",
+					"value": "$.request.headers[\"x-axway-team-id\"]",
+					"metaName": "X-Axway-Team-Id",
+					"metaDescription": "The currently selected team if the user is using the system within a team context"
+				},
+				{
+					"name": "X-Axway-Tenant-Id",
+					"type": "jsonpath",
+					"value": "$.request.headers[\"x-axway-tenant-id\"]",
+					"metaName": "X-Axway-Tenant-Id",
+					"metaDescription": "The tenant id"
+				},
+				{
+					"name": "runtimeGroup",
+					"type": "jsonpath",
+					"value": "$.data.runtimeGroup",
+					"metaName": "runtimeGroup",
+					"metaDescription": "The representation of the Runtime Group to create"
+				}
+			],
+			"outputs": {
+				"201": {
+					"routes": [
+						"setcontext.2"
+					],
+					"context": "$.response",
+					"metaName": "201"
+				},
+				"409": {
+					"routes": [
+						"delay.8"
+					],
+					"context": "$.response",
+					"metaName": "409"
+				},
+				"default": {
+					"routes": [
+						"delay.8"
+					],
+					"context": "$.response",
+					"metaName": "Default"
+				},
+				"error": {
+					"routes": [
+						"delay.8"
+					],
+					"context": "$.error",
+					"metaName": "Error"
+				}
+			},
+			"metaMethod": "createRuntimeGroup",
+			"authorizations": [
+				{
+					"name": "Bearer",
+					"type": "jsonpath",
+					"value": "$.request.headers[\"authorization\"]"
+				}
+			]
+		},
+		"delay.7": {
+			"type": "nodehandler://axway-flow/delay",
+			"name": "Step-2: End",
+			"method": "delay",
+			"parameters": [
+				{
+					"name": "delay",
+					"type": "number",
+					"value": "0",
+					"metaName": "delay",
+					"metaDescription": "The length of delay, in milliseconds."
+				}
+			],
+			"outputs": {
+				"next": {
+					"context": "$.delayed",
+					"routes": [
+						"doT.2"
+					],
+					"metaName": "Next"
+				}
+			},
+			"metaMethod": "Delay"
+		},
+		"delay.8": {
+			"type": "nodehandler://axway-flow/delay",
+			"name": "Rollback-2: Start",
+			"method": "delay",
+			"parameters": [
+				{
+					"name": "delay",
+					"type": "number",
+					"value": "0",
+					"metaName": "delay",
+					"metaDescription": "The length of delay, in milliseconds."
+				}
+			],
+			"outputs": {
+				"next": {
+					"context": "$.delayed",
+					"routes": [
+						"delay.9"
+					],
+					"metaName": "Next"
+				}
+			},
+			"metaMethod": "Delay"
+		},
+		"delay.9": {
+			"type": "nodehandler://axway-flow/delay",
+			"name": "Rollback-2: End",
+			"method": "delay",
+			"parameters": [
+				{
+					"name": "delay",
+					"type": "number",
+					"value": "0",
+					"metaName": "delay",
+					"metaDescription": "The length of delay, in milliseconds."
+				}
+			],
+			"outputs": {
+				"next": {
+					"context": "$.delayed",
+					"routes": [
+						"delay.2"
+					],
+					"metaName": "Next"
+				}
+			},
+			"metaMethod": "Delay"
+		},
+		"setcontext.1": {
+			"type": "nodehandler://axway-flow/setcontext",
+			"name": "Step-1: Extract response",
+			"method": "setcontext",
+			"parameters": [
+				{
+					"name": "value",
+					"type": "jsonpath",
+					"value": "$.response.data",
+					"metaName": "value"
+				}
+			],
+			"outputs": {
+				"next": {
+					"context": "$.data.environment",
+					"routes": [
+						"delay.3"
+					],
+					"metaName": "Next"
+				}
+			},
+			"metaMethod": "Set Context"
+		},
+		"setcontext.2": {
+			"type": "nodehandler://axway-flow/setcontext",
+			"name": "Step-2: Extract response",
+			"method": "setcontext",
+			"parameters": [
+				{
+					"name": "value",
+					"type": "jsonpath",
+					"value": "$.response.data",
+					"metaName": "value"
+				}
+			],
+			"outputs": {
+				"next": {
+					"context": "$.data.runtimeGroup",
+					"routes": [
+						"delay.7"
+					],
+					"metaName": "Next"
+				}
+			},
+			"metaMethod": "Set Context"
+		},
+		"doT.3": {
+			"type": "nodehandler://@axway/api-builder-plugin-fn-dot/doT",
+			"name": "Step-2: Format RuntimeGroup",
+			"method": "formatObj",
+			"parameters": [
+				{
+					"name": "data",
+					"type": "jsonpath",
+					"value": "$",
+					"metaName": "data",
+					"metaDescription": "The data to evaluate the template with. Use $ to access the entire context."
+				},
+				{
+					"name": "template",
+					"type": "string",
+					"value": "\"{\\n\\\"name\\\": {{= JSON.stringify(it.params.environment.runtimeGroupName) }},\\n\\\"environmentId\\\": \\\"{{= it.data.environment.id }}\\\",\\n\\\"state\\\": { \\\"value\\\": \\\"ACTIVE\\\" }\\n}\"",
+					"metaName": "template",
+					"metaDescription": "The doT template."
+				}
+			],
+			"outputs": {
+				"next": {
+					"routes": [
+						"config-service.3"
+					],
+					"context": "$.data.runtimeGroup",
+					"metaName": "Next"
+				},
+				"error": {
+					"routes": [
+						"delay.8"
+					],
+					"context": "$.error",
+					"metaName": "Error"
+				}
+			},
+			"metaMethod": "Format object"
+		}
+	}
+}

@@ -1,0 +1,656 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Feature Toggle Configuration API v1.0",
+        "version": "1.0.0",
+        "contact": {
+            "email": "support@axway.com"
+        },
+        "license": {
+            "name": "Copyright Axway 2019. All rights reserved."
+        }
+    },
+    "schemes": ["http", "https"],
+    "basePath": "/api/v1",
+    "consumes": ["application/json", "application/xml"],
+    "produces": ["application/json", "application/xml"],
+    "parameters": {
+        "FeatureFlagIdParam": {
+            "name": "featureFlagId",
+            "in": "path",
+            "description": "The feature flag id of the resource.",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 32
+        },
+        "FeatureFlagOverrideIdParam": {
+            "name": "featureFlagOverrideId",
+            "in": "path",
+            "description": "The id of a feature flag override",
+            "required": true,
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 32
+        },
+        "KeyParam": {
+            "name": "key",
+            "in": "path",
+            "description": "The key of the feature toggle",
+            "required": true,
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_\\-\\.]{3,32}$"
+        },
+        "PageNumberParam": {
+            "name": "page",
+            "in": "query",
+            "type": "integer",
+            "default": 1,
+            "required": false,
+            "description": "The offset starting page number in the result set to start returning results from, starts at 1"
+        },
+        "PageSizeParam": {
+            "name": "pageSize",
+            "in": "query",
+            "type": "integer",
+            "default": 20,
+            "required": false,
+            "description": "The number of entities allowed in a page"
+        },
+        "SortParam": {
+            "name": "sort",
+            "in": "query",
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "collectionFormat": "multi",
+            "required": false
+        },
+        "SearchQuery": {
+            "name": "query",
+            "in": "query",
+            "type": "string",
+            "description": "Query string for filtering entity. Expressed in FIQL/RSQL language",
+            "required": false
+        },
+        "InstanceIdSearchQuery": {
+            "name": "query",
+            "in": "query",
+            "type": "string",
+            "description": "Query string for specifing the \\\"instanceId\\\" expressed in FIQL/RSQL language",
+            "required": true
+        }
+    },
+    "paths": {
+        "/featureFlags": {
+            "get": {
+                "tags": ["Feature flags admin operations"],
+                "summary": "Retrieves the list of the defined feature flags",
+                "operationId": "getFeatureFlags",
+                "parameters": [{
+                    "$ref": "#/parameters/PageSizeParam"
+                }, {
+                    "$ref": "#/parameters/PageNumberParam"
+                }, {
+                    "$ref": "#/parameters/SortParam"
+                }, {
+                    "$ref": "#/parameters/SearchQuery"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "List of feature flags",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/FeatureFlag"
+                            }
+                        },
+                        "headers": {
+                            "Link": {
+                                "type": "string",
+                                "description": "Pagination relative URI links"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Feature flags admin operations"],
+                "summary": "Creates a new feature flag",
+                "operationId": "createFeatureFlag",
+                "parameters": [{
+                    "name": "featureFlag",
+                    "in": "body",
+                    "required": true,
+                    "description": "The feature flag resource",
+                    "schema": {
+                        "$ref": "#/definitions/FeatureFlag"
+                    }
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Returns the created feature flag",
+                        "schema": {
+                            "$ref": "#/definitions/FeatureFlag"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    },
+                    "409": {
+                        "description": "Duplicate feature flag key"
+                    }
+                }
+            }
+        },
+        "/featureFlags/{featureFlagId}": {
+            "parameters": [{
+                "$ref": "#/parameters/FeatureFlagIdParam"
+            }],
+            "get": {
+                "tags": ["Feature flags admin operations"],
+                "summary": "Retrieves a feature flag given its identifier",
+                "operationId": "getFeatureFlag",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FeatureFlag"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request."
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["Feature flags admin operations"],
+                "summary": "Removes a feature flag",
+                "operationId": "removeFeatureFlag",
+                "responses": {
+                    "204": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    }
+                }
+            },
+            "put": {
+                "tags": ["Feature flags admin operations"],
+                "summary": "Override a Feature flag",
+                "operationId": "overrideFeatureFlag",
+                "parameters": [{
+                    "name": "featureFlag",
+                    "in": "body",
+                    "schema": {
+                        "$ref": "#/definitions/FeatureFlag"
+                    },
+                    "required": true,
+                    "description": "The changes to apply"
+                }],
+                "responses": {
+                    "204": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    },
+                    "409": {
+                        "description": "Conflict, this entity already exists"
+                    }
+                }
+            },
+            "patch": {
+                "tags": ["Feature flags admin operations"],
+                "summary": "Override a Feature flag",
+                "operationId": "updateFeatureFlag",
+                "parameters": [{
+                    "name": "featureFlag",
+                    "in": "body",
+                    "schema": {
+                        "$ref": "#/definitions/FeatureFlagPatch"
+                    },
+                    "required": true,
+                    "description": "The changes to apply"
+                }],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    },
+                    "409": {
+                        "description": "Conflict, this entity already exists"
+                    }
+                }
+            }
+        },
+        "/featureFlags/{featureFlagId}/overrides": {
+            "parameters": [{
+                "$ref": "#/parameters/FeatureFlagIdParam"
+            }],
+            "get": {
+                "tags": ["Feature flags admin operations on logical instances"],
+                "summary": "Retrieves the list of the overriden feature flags for different tenant instance ids",
+                "operationId": "getLogicalInstancesFeatureFlags",
+                "parameters": [{
+                    "$ref": "#/parameters/PageSizeParam"
+                }, {
+                    "$ref": "#/parameters/PageNumberParam"
+                }, {
+                    "$ref": "#/parameters/SortParam"
+                }, {
+                    "$ref": "#/parameters/SearchQuery"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "List of feature flags overrides for tenant logical instance ids",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/FeatureFlagOverride"
+                            }
+                        },
+                        "headers": {
+                            "Link": {
+                                "type": "string",
+                                "description": "Pagination relative URI links"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Feature flags admin operations on logical instances"],
+                "summary": "Override feature flag for a tenant logical instance id",
+                "operationId": "overrideFeatureFlagForLogicalInstance",
+                "parameters": [{
+                    "name": "enabled",
+                    "in": "body",
+                    "required": true,
+                    "description": "Whether to allow or not a tenant logical instance to use the feature",
+                    "schema": {
+                        "$ref": "#/definitions/FeatureFlagOverride"
+                    }
+                }],
+                "responses": {
+                    "201": {
+                        "description": "Returns the created tenant feature flag override",
+                        "schema": {
+                            "$ref": "#/definitions/FeatureFlagOverride"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    },
+                    "409": {
+                        "description": "Duplicate feature flag key"
+                    }
+                }
+            }
+        },
+        "/featureFlags/{featureFlagId}/overrides/{featureFlagOverrideId}": {
+            "parameters": [{
+                "$ref": "#/parameters/FeatureFlagIdParam"
+            }, {
+                "$ref": "#/parameters/FeatureFlagOverrideIdParam"
+            }],
+            "get": {
+                "tags": ["Feature flags admin operations on logical instances"],
+                "summary": "Retrieves a feature flag override given its identifier and the feature flag identifier",
+                "operationId": "getFeatureFlagOverride",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FeatureFlagOverride"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request."
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    },
+                    "404": {
+                        "description": "Not found."
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["Feature flags admin operations on logical instances"],
+                "summary": "Removes a feature flag",
+                "operationId": "removeFeatureFlagForLogicalInstance",
+                "responses": {
+                    "204": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    }
+                }
+            },
+            "put": {
+                "tags": ["Feature flags admin operations on logical instances"],
+                "summary": "Update the feature flag override for the logical instance",
+                "operationId": "updateFeatureFlagOverride",
+                "parameters": [{
+                    "name": "featureFlagOverride",
+                    "in": "body",
+                    "schema": {
+                        "$ref": "#/definitions/FeatureFlagOverride"
+                    },
+                    "required": true,
+                    "description": "The changes to apply"
+                }],
+                "responses": {
+                    "204": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    },
+                    "409": {
+                        "description": "Conflict, this entity already exists"
+                    }
+                }
+            }
+        },
+        "/featureFlagsStatus": {
+            "parameters": [{
+                "$ref": "#/parameters/InstanceIdSearchQuery"
+            }],
+            "get": {
+                "tags": ["Feature flags admin runtime operations"],
+                "summary": "Retrieves the list of active feature flags keys",
+                "operationId": "getFeatureFlagsStatus",
+                "responses": {
+                    "200": {
+                        "description": "List of allowed feature flags for the specified instance id",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    }
+                }
+            }
+        },
+        "/featureFlagsStatus/{key}": {
+            "parameters": [{
+                "$ref": "#/parameters/KeyParam"
+            }, {
+                "$ref": "#/parameters/InstanceIdSearchQuery"
+            }],
+            "get": {
+                "tags": ["Feature flags admin runtime operations"],
+                "summary": "Checks if a feature flag key is allowed",
+                "operationId": "getFeatureFlagsStatusForKey",
+                "responses": {
+                    "200": {
+                        "description": "In case the feature flag with the specified key is allowed for the specified instance id",
+                        "schema": {
+                            "$ref": "#/definitions/FeatureFlagStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    },
+                    "403": {
+                        "description": "Forbidden, the user does not have the correct permissions to call this API"
+                    }
+                }
+            }
+        },
+        "/userFeatureFlags": {
+            "get": {
+                "tags": ["Feature flags user operations"],
+                "summary": "Retrieves the list of allowed feature flags",
+                "operationId": "getUserFeatureFlagsStatus",
+                "responses": {
+                    "200": {
+                        "description": "List of allowed feature flags",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized, user failed to authenticate"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "FeatureFlag": {
+            "required": ["key", "name"],
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Unique identifier",
+                    "minLength": 32,
+                    "maxLength": 32
+                },
+                "key": {
+                    "type": "string",
+                    "description": "Key",
+                    "pattern": "^[A-Za-z0-9_\\-\\.]{3,128}$"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name",
+                    "minLength": 1,
+                    "maxLength": 100
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Description",
+                    "maxLength": 350
+                },
+                "deployed": {
+                    "type": "boolean",
+                    "description": "If the service that owns the feature flag is deployed",
+                    "default": false
+                },
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Valid for all tenants unless overwritten at tenant level",
+                    "default": false
+                },
+                "forceDisabled": {
+                    "type": "boolean",
+                    "description": "Forces the feature flag to be disabled, any overwrides at tenant level are ignored",
+                    "default": false
+                },
+                "metadata": {
+                    "$ref": "#/definitions/AuditMetadata"
+                }
+            }
+        },
+        "FeatureFlagOverride": {
+            "required": ["instanceId"],
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Unique identifier",
+                    "minLength": 32,
+                    "maxLength": 32
+                },
+                "instanceId": {
+                    "type": "string",
+                    "description": "Tenant logical instance unique identifier",
+                    "minLength": 1,
+                    "maxLength": 36
+                },
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Tenant feature flag override",
+                    "default": false
+                },
+                "metadata": {
+                    "$ref": "#/definitions/AuditMetadata"
+                }
+            }
+        },
+        "FeatureFlagPatch": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name",
+                    "maxLength": 100
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Description",
+                    "maxLength": 350
+                },
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Global feature flag override for enabled field"
+                },
+                "deployed": {
+                    "type": "boolean",
+                    "description": "Global feature flag override for deployed field"
+                },
+                "forceDisabled": {
+                    "type": "boolean",
+                    "description": "Global feature flag override for forceDisabled field"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/AuditMetadata"
+                }
+            }
+        },
+        "FeatureFlagStatus": {
+            "type": "object",
+            "properties": {
+                "allowed": {
+                    "type": "boolean",
+                    "description": "Defines if the feature flag for the provided key is allowed"
+                }
+            }
+        },
+        "AuditMetadata": {
+            "type": "object",
+            "readOnly": true,
+            "properties": {
+                "createTimestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The creation time"
+                },
+                "createUserId": {
+                    "type": "string",
+                    "minLength": 32,
+                    "maxLength": 32,
+                    "description": "Id of the user that created the entity"
+                },
+                "modifyTimestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The last modification time"
+                },
+                "modifyUserId": {
+                    "type": "string",
+                    "minLength": 32,
+                    "maxLength": 32,
+                    "description": "Id of the user that last modified the entity"
+                }
+            }
+        }
+    }
+}

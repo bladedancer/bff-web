@@ -17,13 +17,13 @@ module.exports = {
 	// access to your API using the default configuration.
 
 	// API key
-	apikey: 'joFHBInTnXAnlzug7yEUOfUj+6ajuNhG',
+	apikey: '',
 
 	// This is the base url the service will be reachable at not including the port
 	baseurl: 'http://localhost',
 
 	// This is the port the service will be bound to
-	port: 8080,
+	port: 8085,
 
 	// Enabling this property will print out the process.env at startup time
 	printEnvVars: false,
@@ -68,7 +68,7 @@ module.exports = {
 	// If you wish any path that is not bound to `apiPrefix` to be accessible without
 	// authentication, then you can explicitly add them to `public` paths.
 	accessControl: {
-		apiPrefixSecurity: 'basic', // none | basic | apikey | ldap | plugin
+		apiPrefixSecurity: 'none', // none | basic | apikey | ldap | plugin
 		public: []
 	},
 
@@ -130,6 +130,7 @@ module.exports = {
 	cors: {
 		// List of allowed origins (format: any, space separated string, array or regex)
 		// 'Access-Control-Allow-Origin': '*' or 'http://foo.com http://bar.com' or ['http://foo.com', 'http://bar.com'] or /foo\.com$/,
+		'Access-Control-Allow-Origin': '*'
 
 		// Sets the Access-Control-Allow-Credentials header on API responses. Can be true or false
 		// 'Access-Control-Allow-Credentials': false,

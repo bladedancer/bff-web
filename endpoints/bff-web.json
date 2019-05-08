@@ -1,0 +1,72 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0",
+    "title": "API Central BFF Web",
+    "contact": {
+      "email": "support@axway.com"
+    },
+    "license": {
+      "name": "Copyright Axway 2019. All rights reserved."
+    }
+  },
+  "host": "bff-web:8080",
+  "basePath": "/v1",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/environments/": {
+      "post": {
+        "tags": [
+          "Environments"
+        ],
+        "summary": "Creates an Environment and its initial dependencies (runtime-group, service accounts and listeners).",
+        "operationId": "createEnvironment",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "environment",
+            "description": "The details to use to create the environment.",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "environmentName": {
+                  "type": "string"
+                },
+                "runtimeGroupName": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Environment was created successfully."
+          },
+          "400": {
+            "description": "Bad Request, failed to validate request parameters"
+          },
+          "401": {
+            "description": "Unauthorized, user failed to authenticate"
+          },
+          "403": {
+            "description": "Forbidden, the user does not have the correct permissions to call this API"
+          },
+          "409": {
+            "description": "Conflict, this entity already exists"
+          }
+        },
+        "x-flow": "bff-web-createEnvironment"
+      }
+    }
+  }
+}
